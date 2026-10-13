@@ -14,10 +14,8 @@
 
 ## 🌐 Live Deployed Links
 
-- **🚀 Live Web App (Frontend):** `https://<your-username>-inventory-pro.vercel.app` *(Follow the Vercel guide below to deploy your own instance)*
-- **⚡ Backend REST API:** `https://<your-render-app>.onrender.com/api/v1`
-- **📖 Swagger API Documentation:** `https://<your-render-app>.onrender.com/api/v1/swagger-ui.html`
-- **🔗 Local Preview:** `http://localhost:5173`
+- **🚀 Live Web App:** [https://smart-inventory-management-system-t-mu.vercel.app](https://smart-inventory-management-system-t-mu.vercel.app)
+- **⚡ GitHub Repository:** [https://github.com/sushmithareddy478-hue/smart-inventory-management-system](https://github.com/sushmithareddy478-hue/smart-inventory-management-system)
 
 ---
 
