@@ -69,41 +69,53 @@ export const apiClient = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ usernameOrEmail, password })
       });
-      if (!res.ok) {
+      const contentType = res.headers.get('content-type') || '';
+      if (res.ok && contentType.includes('application/json')) {
+        const data: AuthResponse = await res.json();
+        localStorage.setItem('inventory_token', data.token);
+        localStorage.setItem('inventory_user', JSON.stringify(data));
+        return data;
+      }
+      if (res.status === 401 && contentType.includes('application/json')) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.message || 'Invalid username or password');
       }
-      const data: AuthResponse = await res.json();
-      localStorage.setItem('inventory_token', data.token);
-      localStorage.setItem('inventory_user', JSON.stringify(data));
-      return data;
     } catch (e: any) {
-      if (e.message && e.message !== 'Failed to fetch' && !e.message.includes('fetch')) {
+      if (e.message && e.message.includes('401') && !e.message.includes('fetch')) {
         throw e;
       }
-      // Demo credentials offline fallback
-      let role: any = 'ROLE_STAFF';
-      let fullName = 'Staff Member';
-      if (usernameOrEmail.toLowerCase().includes('admin')) {
-        role = 'ROLE_ADMIN';
-        fullName = 'System Administrator';
-      } else if (usernameOrEmail.toLowerCase().includes('manager')) {
-        role = 'ROLE_WAREHOUSE_MANAGER';
-        fullName = 'Elena Rostova';
-      }
-      const fallbackUser: AuthResponse = {
-        token: 'demo-local-jwt-token',
-        tokenType: 'Bearer',
-        id: 1,
-        username: usernameOrEmail,
-        email: `${usernameOrEmail}@inventorypro.io`,
-        fullName: fullName,
-        role: role
-      };
-      localStorage.setItem('inventory_token', fallbackUser.token);
-      localStorage.setItem('inventory_user', JSON.stringify(fallbackUser));
-      return fallbackUser;
     }
+
+    // Demo credentials fallback for standalone preview / Vercel deployment
+    const validDemoPasswords = ['admin123', 'manager123', 'staff123', 'secret', 'password'];
+    if (!validDemoPasswords.includes(password)) {
+      throw new Error('Invalid username or password. Please use quick-fill buttons below: admin123, manager123, or staff123');
+    }
+
+    let role: any = 'ROLE_STAFF';
+    let fullName = 'Staff Member';
+    if (usernameOrEmail.toLowerCase().includes('admin')) {
+      role = 'ROLE_ADMIN';
+      fullName = 'System Administrator';
+    } else if (usernameOrEmail.toLowerCase().includes('manager')) {
+      role = 'ROLE_WAREHOUSE_MANAGER';
+      fullName = 'Elena Rostova';
+    } else {
+      fullName = 'Alex Chen';
+    }
+
+    const fallbackUser: AuthResponse = {
+      token: 'demo-local-jwt-token',
+      tokenType: 'Bearer',
+      id: 1,
+      username: usernameOrEmail,
+      email: `${usernameOrEmail}@inventorypro.io`,
+      fullName: fullName,
+      role: role
+    };
+    localStorage.setItem('inventory_token', fallbackUser.token);
+    localStorage.setItem('inventory_user', JSON.stringify(fallbackUser));
+    return fallbackUser;
   },
 
   getCurrentUser(): AuthResponse | null {
